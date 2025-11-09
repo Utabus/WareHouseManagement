@@ -1,0 +1,85 @@
+﻿<UserControl x:Class="WareHouseManagement.Views.BanHangUC"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+              xmlns:vm="clr-namespace:WareHouseManagement.ViewModels.BanHang"
+             d:DataContext="{d:DesignInstance Type=vm:BanHangViewModel, IsDesignTimeCreatable=True}">
+
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Tiêu đề -->
+        <TextBlock Text="Quản lý Xuất hàng / Bán hàng" 
+                   FontSize="22" FontWeight="Bold" 
+                   Foreground="#2C3E50" Margin="0,0,0,10"/>
+
+        <!-- Danh sách sản phẩm tồn -->
+        <DataGrid Grid.Row="1" ItemsSource="{Binding DanhSachSanPham}" 
+                  AutoGenerateColumns="False" IsReadOnly="True"
+                  SelectionMode="Single" Margin="0,0,0,10">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Mã SP" Binding="{Binding Series}" Width="*"/>
+                <DataGridTextColumn Header="Tên SP" Binding="{Binding ProductName}" Width="*"/>
+                <DataGridTextColumn Header="Màu" Binding="{Binding Color}" Width="*"/>
+                <DataGridTextColumn Header="Dung lượng" Binding="{Binding Capacity}" Width="*"/>
+                <DataGridTextColumn Header="Giá vốn" Binding="{Binding CostPrice, StringFormat={}{0:N0}}" Width="*"/>
+                <DataGridTextColumn Header="Giá bán" Binding="{Binding SellPrice, StringFormat={}{0:N0}}" Width="*"/>
+                <DataGridTextColumn Header="Tồn kho" Binding="{Binding Quantity}" Width="*" />
+
+                <DataGridTemplateColumn Header="Thao tác" Width="*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="Chọn" Width="80" 
+                                    Command="{Binding DataContext.ThemVaoGioCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                    CommandParameter="{Binding}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Khu vực hóa đơn -->
+        <GroupBox Header="Chi tiết Hóa đơn bán" Grid.Row="2" Margin="0,10,0,0">
+            <StackPanel>
+                <DataGrid ItemsSource="{Binding GioHang}" AutoGenerateColumns="False" Margin="0,10" CanUserAddRows="False">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Sản phẩm" Binding="{Binding ProductName}" Width="*"/>
+                        <DataGridTextColumn Header="Số lượng" Binding="{Binding Quantity}" Width="*"/>
+                        <DataGridTextColumn Header="Giá bán" Binding="{Binding UnitPrice, StringFormat={}{0:N0}}" Width="*"/>
+                        <DataGridTextColumn Header="Thành tiền" Binding="{Binding Total, StringFormat={}{0:N0}}" Width="*"/>
+
+                        <DataGridTemplateColumn Header="Xóa" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="Xóa" Width="60" 
+                                            Command="{Binding DataContext.XoaKhoiGioCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,0,0">
+                    <TextBlock Text="Tổng tiền: " FontWeight="Bold" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding TongTien,UpdateSourceTrigger=Default, StringFormat={}{0:N0} VNĐ}" 
+                               Foreground="#E74C3C" FontSize="16" FontWeight="Bold" Margin="5,0"/>
+                    <TextBlock Text=" | Lợi nhuận: " FontWeight="Bold" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding LoiNhuan,UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:N0} VNĐ}" 
+                               Foreground="#27AE60" FontSize="16" FontWeight="Bold" Margin="5,0"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+                    <Button Content="Lưu s In hóa đơn" Command="{Binding LuuHoaDonCommand}" Width="160" Margin="5,0"/>
+                    <Button Content="Làm mới" Command="{Binding TaiLaiCommand}" Width="100" Margin="5,0"/>
+                </StackPanel>
+            </StackPanel>
+        </GroupBox>
+    </Grid>
+</UserControl>

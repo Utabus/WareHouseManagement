@@ -1,0 +1,78 @@
+﻿<UserControl x:Class="WareHouseManagement.Views.ProductListView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:WareHouseManagement.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             Background="White"
+             >
+
+    <Grid Margin="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Label Grid.Row="0" Content="Quản lý kho"
+       FontSize="24" FontWeight="Bold"
+       Height="50"
+       HorizontalContentAlignment="Center"
+       VerticalContentAlignment="Center"
+       Background="Transparent"
+       BorderThickness="0"
+       Margin="0 0 0 10"/>
+
+
+        <!-- Thanh công cụ -->
+        <StackPanel Orientation="Horizontal" Margin="0 0 0 10" Grid.Row="1">
+            <TextBox Width="200" Margin="0 0 10 0"
+                     Text="{Binding Keyword, UpdateSourceTrigger=PropertyChanged}"
+                     />
+            <ComboBox ItemsSource="{Binding ProductTypes}"
+                      SelectedValue="{Binding Product.ProductTypeId, Mode=TwoWay}"
+                      SelectedValuePath="Id"
+                      DisplayMemberPath="TypeName"
+                      Margin="0 5"
+                      Height="25"
+                      />
+            <Button Content="Tìm" Command="{Binding SearchCommand}" Width="70" Margin="0 0 10 0"/>
+            <Button Content="Thêm sản phẩm" Command="{Binding AddCommand}" Width="150" Background="#4CAF50" Foreground="White" Margin="0 0 10 0"/>
+            <Button Content="Làm mới" Command="{Binding RefreshCommand}" Width="100" Background="#2196F3" Foreground="White"/>
+        </StackPanel>
+
+        <!-- Bảng danh sách -->
+        <DataGrid ItemsSource="{Binding Products}" Grid.Row="2" 
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserAddRows="False"
+                  SelectionMode="Single">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="*"/>
+                <DataGridTextColumn Header="Series" Binding="{Binding Series}" Width="*"/>
+                <DataGridTextColumn Header="Tên sản phẩm" Binding="{Binding ProductName}" Width="*"/>
+                <DataGridTextColumn Header="Màu" Binding="{Binding Color}" Width="*"/>
+                <DataGridTextColumn Header="Dung lượng" Binding="{Binding Capacity}" Width="*"/>
+                <DataGridTextColumn Header="Giá nhập" Binding="{Binding CostPrice}" Width="*"/>
+                <DataGridTextColumn Header="Giá bán" Binding="{Binding SellPrice}" Width="*"/>
+                <DataGridTextColumn Header="SL" Binding="{Binding Quantity}" Width="*"/>
+                <DataGridTextColumn Header="Loại" Binding="{Binding ProductTypeName}" Width="*"/>
+                <!-- Action Column -->
+                <DataGridTemplateColumn Header="Hành động" Width="150">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" >
+                                <Button Content="Sửa" Width="60" 
+                                Command="{Binding DataContext.EditCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}" />
+                                <Button Content="Xóa" Width="60" 
+                                Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}" Background="#F44336" Foreground="White"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

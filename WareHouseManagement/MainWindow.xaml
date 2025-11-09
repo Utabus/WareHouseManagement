@@ -1,0 +1,85 @@
+﻿<Window x:Class="WareHouseManagement.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        xmlns:local="clr-namespace:WareHouseManagement"
+        mc:Ignorable="d"
+        Title="📦 Quản Lý Kho Hàng" Height="700" Width="1100"
+        WindowStartupLocation="CenterScreen"
+        Background="#f4f6f8">
+
+    <DockPanel>
+        <!-- SIDE MENU -->
+        <hc:SideMenu DockPanel.Dock="Left"
+                     Width="180"
+                     Header="📦 QUẢN LÝ KHO"
+                     Foreground="White"
+                     FontSize="14"
+                     >
+
+            <!-- Dashboard -->
+            <hc:SideMenuItem Header="Dashboard"
+                             Command="{Binding NavigateCommand}"
+                             CommandParameter="Dashboard">
+                <hc:SideMenuItem.Icon>
+                    <Image Source="Re/img/Homeee.png" Width="24" Height="24"/>
+                </hc:SideMenuItem.Icon>
+            </hc:SideMenuItem>
+
+            <!-- Nhập hàng -->
+            <hc:SideMenuItem Header="Kho Hàng"
+                             Command="{Binding NavigateCommand}"
+                             CommandParameter="NhapHang">
+                <hc:SideMenuItem.Icon>
+                    <Image Source="Re/img/icon-3.png" Width="24" Height="24"/>
+                </hc:SideMenuItem.Icon>
+            </hc:SideMenuItem>
+            <!-- Nhập hàng -->
+            <hc:SideMenuItem Header="Loại sản phẩm"
+                             Command="{Binding NavigateCommand}"
+                             CommandParameter="LoaiSanPham">
+                <hc:SideMenuItem.Icon>
+                    <Image Source="Re/img/icon-3.png" Width="24" Height="24"/>
+                </hc:SideMenuItem.Icon>
+            </hc:SideMenuItem>
+
+            <!-- Nhập hàng -->
+            <hc:SideMenuItem Header="Bán Hàng"
+                             Command="{Binding NavigateCommand}"
+                             CommandParameter="BanHang">
+                <hc:SideMenuItem.Icon>
+                    <Image Source="Re/img/icon-3.png" Width="24" Height="24"/>
+                </hc:SideMenuItem.Icon>
+            </hc:SideMenuItem>
+
+
+            <!-- Tồn kho -->
+            <hc:SideMenuItem Header="Hóa đơn "
+                             Command="{Binding NavigateCommand}"
+                             CommandParameter="HoaDon">
+                <hc:SideMenuItem.Icon>
+                    <Image Source="Re/img/images.png" Width="24" Height="24"/>
+                </hc:SideMenuItem.Icon>
+            </hc:SideMenuItem>
+
+            <!-- Thống kê -->
+            <hc:SideMenuItem Header="Thống kê"
+                             Command="{Binding NavigateCommand}"
+                             CommandParameter="ThongKe">
+                <hc:SideMenuItem.Icon>
+                    <Image Source="Re/img/thongke.png" Width="24" Height="24"/>
+                </hc:SideMenuItem.Icon>
+            </hc:SideMenuItem>
+
+        </hc:SideMenu>
+
+        <!-- MAIN VIEW -->
+        <Border Background="WhiteSmoke"
+                CornerRadius="10"
+                Margin="10">
+            <ContentControl Content="{Binding CurrentView}" />
+        </Border>
+    </DockPanel>
+</Window>
