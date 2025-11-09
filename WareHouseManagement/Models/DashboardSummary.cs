@@ -8,4 +8,10 @@
         public decimal TotalExportValue { get; set; } // Tổng giá trị bán
         public decimal TotalProfit { get; set; }      // Tổng lợi nhuận
     }
+    public class RevenueStatistic
+    {
+        public string Month { get; set; }
+        public decimal TotalRevenue { get; set; }
+        public decimal TotalProfit { get; set; }
+    }
 }

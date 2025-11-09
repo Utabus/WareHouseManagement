@@ -1,12 +1,90 @@
 ﻿<UserControl x:Class="WareHouseManagement.Views.DashboardUC"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:WareHouseManagement.Views"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-            
-    </Grid>
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+             xmlns:viewmodels="clr-namespace:WareHouseManagement.ViewModels"
+             mc:Ignorable="d"
+             >
+
+ 
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="0">
+            <!-- Định nghĩa 3 hàng -->
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- Tổng quan cards -->
+                <RowDefinition Height="Auto"/>
+                <!-- Chọn năm -->
+                <RowDefinition Height="*"/>
+                <!-- Biểu đồ -->
+            </Grid.RowDefinitions>
+
+            <!-- Thống kê tổng quan -->
+            <UniformGrid Grid.Row="0" Rows="1" Columns="5" Margin="0,0,0,20">
+                <Border Background="#0078D7" CornerRadius="10" Padding="10" Margin="5">
+                    <StackPanel>
+                        <TextBlock Text="Tổng sản phẩm" Foreground="White" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding Summary.TotalProducts}" 
+                                   Foreground="White" FontSize="20" FontWeight="Bold"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="#009688" CornerRadius="10" Padding="10" Margin="5">
+                    <StackPanel>
+                        <TextBlock Text="Tổng tồn kho" Foreground="White" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding Summary.TotalInStock}" 
+                                   Foreground="White" FontSize="20" FontWeight="Bold"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="#FF9800" CornerRadius="10" Padding="10" Margin="5">
+                    <StackPanel>
+                        <TextBlock Text="Giá trị nhập" Foreground="White" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding Summary.TotalImportValue, StringFormat={}{0:N0} đ}" 
+                                   Foreground="White" FontSize="20" FontWeight="Bold"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="#3F51B5" CornerRadius="10" Padding="10" Margin="5">
+                    <StackPanel>
+                        <TextBlock Text="Doanh thu" Foreground="White" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding Summary.TotalExportValue, StringFormat={}{0:N0} đ}" 
+                                   Foreground="White" FontSize="20" FontWeight="Bold"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="#E91E63" CornerRadius="10" Padding="10" Margin="5">
+                    <StackPanel>
+                        <TextBlock Text="Lợi nhuận" Foreground="White" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding Summary.TotalProfit, StringFormat={}{0:N0} đ}" 
+                                   Foreground="White" FontSize="20" FontWeight="Bold"/>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <!-- Chọn năm -->
+            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,20">
+                <TextBlock Text="Năm:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <ComboBox Width="100" ItemsSource="{Binding Years}" 
+                          SelectedItem="{Binding SelectedYear}" />
+            </StackPanel>
+
+            <!-- Biểu đồ doanh thu -->
+            <Border Grid.Row="2" Background="White" CornerRadius="10" Padding="15">
+                <lvc:CartesianChart Series="{Binding RevenueSeries}" 
+                                    LegendLocation="Bottom" 
+                                    Height="400">
+                    <lvc:CartesianChart.AxisX>
+                        <lvc:Axis Title="Tháng" Labels="{Binding Labels}"/>
+                    </lvc:CartesianChart.AxisX>
+                    <lvc:CartesianChart.AxisY>
+                        <lvc:Axis Title="Giá trị (VNĐ)" LabelFormatter="{Binding YFormatter}"/>
+                    </lvc:CartesianChart.AxisY>
+                </lvc:CartesianChart>
+            </Border>
+
+        </Grid>
+    </ScrollViewer>
 </UserControl>

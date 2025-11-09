@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Data.SQLite;
 using System.IO;
+using System.Linq;
 using WareHouseManagement.Models;
 
 namespace WareHouseManagement.Data
@@ -18,6 +19,90 @@ namespace WareHouseManagement.Data
         {
             _connectionString = $"Data Source={_dbPath};Version=3;";
             InitializeDatabase();
+        }
+        public void ImportSampleData()
+        {
+            var conn = CreateConnection();
+            conn.Open();
+
+            // -------------------------
+            // 1️⃣ Loại sản phẩm  
+            // -------------------------
+            var types = new List<ProductType>
+    {
+        new ProductType { TypeCode = "ELEC", TypeName = "Điện tử", Description = "Thiết bị điện tử" },
+        new ProductType { TypeCode = "HOME", TypeName = "Gia dụng", Description = "Thiết bị gia dụng" },
+        new ProductType { TypeCode = "FASH", TypeName = "Thời trang", Description = "Quần áo, phụ kiện" }
+    };
+            foreach (var t in types)
+            {
+                if (!IsProductTypeExist(t.TypeCode, t.TypeName))
+                    InsertProductType(t);
+            }
+
+            // -------------------------
+            // 2️⃣ Sản phẩm
+            // -------------------------
+            var products = new List<Product>
+    {
+        new Product { Series="ELEC001", ProductName="Điện thoại A", Color="Đen", Capacity="128GB", CostPrice=3000000, SellPrice=5000000, Quantity=50, ImportDate=DateTime.Now.AddDays(-60), IsSold=false, ProductTypeId=1 },
+        new Product { Series="ELEC002", ProductName="Laptop B", Color="Xám", Capacity="256GB", CostPrice=10000000, SellPrice=15000000, Quantity=30, ImportDate=DateTime.Now.AddDays(-45), IsSold=false, ProductTypeId=1 },
+        new Product { Series="HOME001", ProductName="Máy hút bụi", Color="Trắng", Capacity="2000W", CostPrice=2000000, SellPrice=3500000, Quantity=40, ImportDate=DateTime.Now.AddDays(-30), IsSold=false, ProductTypeId=2 },
+        new Product { Series="FASH001", ProductName="Áo thun", Color="Đỏ", Capacity="M", CostPrice=50000, SellPrice=150000, Quantity=100, ImportDate=DateTime.Now.AddDays(-20), IsSold=false, ProductTypeId=3 },
+        new Product { Series="FASH002", ProductName="Quần jean", Color="Xanh", Capacity="L", CostPrice=150000, SellPrice=350000, Quantity=80, ImportDate=DateTime.Now.AddDays(-15), IsSold=false, ProductTypeId=3 }
+    };
+            foreach (var p in products)
+            {
+                if (!IsProductExist(p.Series, p.ProductName))
+                    InsertProduct(p);
+            }
+
+            // -------------------------
+            // 3️⃣ Hóa đơn
+            // -------------------------
+            var invoices = new List<Invoice>
+    {
+        new Invoice { InvoiceCode="HDX20251101", InvoiceDate=DateTime.Now.AddDays(-10), Type="Export", TotalAmount=0, Profit=0 },
+        new Invoice { InvoiceCode="HDX20251102", InvoiceDate=DateTime.Now.AddDays(-9), Type="Export", TotalAmount=0, Profit=0 },
+        new Invoice { InvoiceCode="HDX20251103", InvoiceDate=DateTime.Now.AddDays(-8), Type="Export", TotalAmount=0, Profit=0 },
+        new Invoice { InvoiceCode="HDX20251025", InvoiceDate=DateTime.Now.AddMonths(-1).AddDays(-5), Type="Export", TotalAmount=0, Profit=0 },
+        new Invoice { InvoiceCode="HDX20250915", InvoiceDate=DateTime.Now.AddMonths(-2).AddDays(-3), Type="Export", TotalAmount=0, Profit=0 }
+    };
+
+            // -------------------------
+            // 4️⃣ Chi tiết hóa đơn (Export)
+            // -------------------------
+            var invoiceDetails = new List<InvoiceDetail>
+    {
+        new InvoiceDetail { ProductId=1, Quantity=5, UnitPrice=5000000, Total=5*5000000 },
+        new InvoiceDetail { ProductId=2, Quantity=2, UnitPrice=15000000, Total=2*15000000 },
+        new InvoiceDetail { ProductId=3, Quantity=3, UnitPrice=3500000, Total=3*3500000 },
+        new InvoiceDetail { ProductId=4, Quantity=10, UnitPrice=150000, Total=10*150000 },
+        new InvoiceDetail { ProductId=5, Quantity=5, UnitPrice=350000, Total=5*350000 }
+    };
+
+            // -------------------------
+            // 5️⃣ Thêm hóa đơn và cập nhật tồn kho
+            // -------------------------
+            foreach (var inv in invoices)
+            {
+                // Chọn ngẫu nhiên vài sản phẩm cho mỗi hóa đơn
+                var rnd = new Random();
+                var details = invoiceDetails.OrderBy(x => rnd.Next()).Take(rnd.Next(1, 4)).ToList();
+
+                // Tính TotalAmount và Profit
+                inv.TotalAmount = details.Sum(d => d.Total);
+                inv.Profit = details.Sum(d =>
+                {
+                    var product = products.FirstOrDefault(p => p.Id == d.ProductId);
+                    if (product == null) return 0; // bỏ qua nếu không tìm thấy
+                    return (d.UnitPrice - product.CostPrice) * d.Quantity;
+                });
+
+                InsertInvoice(inv, details);
+            }
+
+            Console.WriteLine("✅ Import sample data hoàn tất!");
         }
 
         private IDbConnection CreateConnection() => new SQLiteConnection(_connectionString);
@@ -270,13 +355,39 @@ namespace WareHouseManagement.Data
         {
              var conn = CreateConnection();
             string sql = @"
-                SELECT 
-                    (SELECT COUNT(*) FROM Product) AS TotalProducts,
-                    (SELECT IFNULL(SUM(Quantity), 0) FROM Product) AS TotalInStock,
-                    (SELECT IFNULL(SUM(CostPrice * Quantity), 0) FROM Product) AS TotalImportValue,
-                    (SELECT IFNULL(SUM(SellPrice * Quantity), 0) FROM Product WHERE IsSold=1) AS TotalExportValue,
-                    (SELECT IFNULL(SUM((SellPrice - CostPrice) * Quantity), 0) FROM Product WHERE IsSold=1) AS TotalProfit";
+               SELECT 
+    (SELECT COUNT(*) FROM Product) AS TotalProducts,
+    (SELECT IFNULL(SUM(Quantity), 0) FROM Product) AS TotalInStock,
+    (SELECT IFNULL(SUM(CostPrice * Quantity), 0) FROM Product) AS TotalImportValue,
+    (SELECT IFNULL(SUM(d.Total), 0)
+     FROM Invoice i
+     JOIN InvoiceDetail d ON i.Id = d.InvoiceId
+     WHERE i.Type = 'Export') AS TotalExportValue,
+    (SELECT IFNULL(SUM((d.UnitPrice - p.CostPrice) * d.Quantity), 0)
+     FROM Invoice i
+     JOIN InvoiceDetail d ON i.Id = d.InvoiceId
+     JOIN Product p ON d.ProductId = p.Id
+     WHERE i.Type = 'Export') AS TotalProfit
+";
             return conn.QueryFirstOrDefault<DashboardSummary>(sql);
         }
+
+
+        public IEnumerable<RevenueStatistic> GetRevenueByMonth(int year)
+        {
+            var conn = CreateConnection();
+            string sql = @"
+        SELECT 
+            strftime('%m', InvoiceDate) AS Month,
+            SUM(TotalAmount) AS TotalRevenue,
+            SUM(Profit) AS TotalProfit
+        FROM Invoice
+        WHERE strftime('%Y', InvoiceDate) = @year
+        GROUP BY strftime('%m', InvoiceDate)
+        ORDER BY Month";
+            return conn.Query<RevenueStatistic>(sql, new { year = year.ToString() });
+
+        }
+
     }
 }

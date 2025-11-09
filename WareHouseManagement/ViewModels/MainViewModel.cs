@@ -39,7 +39,7 @@ namespace WareHouseManagement.ViewModels
 
             // Sử dụng if-else để tương thích C# 7.3
             if (viewName == "Dashboard")
-                CurrentView = serviceProvider.GetRequiredService<DashboardUC>();
+                CurrentView = new DashboardUC();
             else if (viewName == "NhapHang")
                 CurrentView = serviceProvider.GetRequiredService<ProductListView>();
             else if (viewName == "LoaiSanPham")

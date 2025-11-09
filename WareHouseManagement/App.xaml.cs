@@ -39,7 +39,7 @@ namespace WareHouseManagement
 
 
 
-            services.AddSingleton<DashboardUC>();
+            //services.AddSingleton<DashboardUC>();
 
 
 
