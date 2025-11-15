@@ -70,9 +70,9 @@
                     <TextBlock Text="Tổng tiền: " FontWeight="Bold" VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding TongTien,UpdateSourceTrigger=Default, StringFormat={}{0:N0} VNĐ}" 
                                Foreground="#E74C3C" FontSize="16" FontWeight="Bold" Margin="5,0"/>
-                    <TextBlock Text=" | Lợi nhuận: " FontWeight="Bold" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                    <!--<TextBlock Text=" | Lợi nhuận: " FontWeight="Bold" Margin="10,0,0,0" VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding LoiNhuan,UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:N0} VNĐ}" 
-                               Foreground="#27AE60" FontSize="16" FontWeight="Bold" Margin="5,0"/>
+                               Foreground="#27AE60" FontSize="16" FontWeight="Bold" Margin="5,0"/>-->
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">

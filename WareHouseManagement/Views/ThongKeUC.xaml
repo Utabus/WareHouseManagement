@@ -27,11 +27,13 @@
         </StackPanel>
 
         <!-- DataGrid hiển thị doanh thu -->
-        <DataGrid Grid.Row="1" ItemsSource="{Binding Statistics}" AutoGenerateColumns="False" CanUserAddRows="False">
+        <DataGrid Grid.Row="1" ItemsSource="{Binding InvoiceProductInfo}" AutoGenerateColumns="False" CanUserAddRows="False">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Tháng" Binding="{Binding Month}" Width="80"/>
-                <DataGridTextColumn Header="Doanh thu" Binding="{Binding TotalRevenue, StringFormat=N0}" Width="*"/>
-                <DataGridTextColumn Header="Lợi nhuận" Binding="{Binding TotalProfit, StringFormat=N0}" Width="*"/>
+                <DataGridTextColumn Header="Tên" Binding="{Binding ProductName}" Width="*"/>
+                <DataGridTextColumn Header="Series" Binding="{Binding Series, StringFormat=N0}" Width="*"/>
+                <DataGridTextColumn Header="Số lượng" Binding="{Binding Quantity, StringFormat=N0}" Width="*"/>
+                <DataGridTextColumn Header="Ngày" Binding="{Binding InvoiceDate}" Width="*"/>
+                <DataGridTextColumn Header="Nhập/Xuất" Binding="{Binding Type}" Width="*"/>
             </DataGrid.Columns>
         </DataGrid>
 

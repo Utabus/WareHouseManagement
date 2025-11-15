@@ -25,21 +25,46 @@
 
 
         <!-- Thanh công cụ -->
-        <StackPanel Orientation="Horizontal" Margin="0 0 0 10" Grid.Row="1">
+        <WrapPanel Grid.Row="1"  Orientation="Horizontal" VerticalAlignment="Center" ItemHeight="40" ItemWidth="Auto" >
+            <Label Content="Tìm kiếm Tên / series:" VerticalAlignment="Center" BorderThickness="0" Margin="0 0 10 0"/>
             <TextBox Width="200" Margin="0 0 10 0"
                      Text="{Binding Keyword, UpdateSourceTrigger=PropertyChanged}"
                      />
-            <ComboBox ItemsSource="{Binding ProductTypes}"
-                      SelectedValue="{Binding Product.ProductTypeId, Mode=TwoWay}"
-                      SelectedValuePath="Id"
-                      DisplayMemberPath="TypeName"
-                      Margin="0 5"
-                      Height="25"
-                      />
-            <Button Content="Tìm" Command="{Binding SearchCommand}" Width="70" Margin="0 0 10 0"/>
+            <Label Content="Loại :" VerticalAlignment="Center" BorderThickness="0" Margin="0 0 10 0"/>
+                <ComboBox ItemsSource="{Binding ProductTypes}"
+                            SelectedItem="{Binding SelectedProductType, Mode=TwoWay}"
+          SelectedValuePath="Id"
+          DisplayMemberPath="TypeName"
+          Height="25"
+          Margin="0 5"/>
+
+                <Button Content="Tìm Kiếm" Command="{Binding SearchCommand}" Width="70" Margin="20 0 10 0"/>
             <Button Content="Thêm sản phẩm" Command="{Binding AddCommand}" Width="150" Background="#4CAF50" Foreground="White" Margin="0 0 10 0"/>
-            <Button Content="Làm mới" Command="{Binding RefreshCommand}" Width="100" Background="#2196F3" Foreground="White"/>
-        </StackPanel>
+            <!--<Button Content="Làm mới" Command="{Binding RefreshCommand}" Width="100" Background="#2196F3" Foreground="White"/>-->
+
+            <Button Content="Import Excel"
+                     Command="{Binding ImportCommand}" 
+                     Width="160"
+                     Height="60"   
+                     Margin="10,0,0,0"
+                    
+      Background="#2196F3" Foreground="White"/>
+
+            <Button 
+                      Command="{Binding ExportCommand}"
+                      Width="160"
+                      Height="60"
+                      Margin="10,0,0,0"
+                      Background="Green"
+                       >
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="/Re/img/excel.png" Width="32"/>
+                    <TextBlock Text="Xuất Excel" Margin="8,10"/>
+                </StackPanel>
+            </Button>
+         
+        </WrapPanel>
+
 
         <!-- Bảng danh sách -->
         <DataGrid ItemsSource="{Binding Products}" Grid.Row="2" 

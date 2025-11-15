@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using ClosedXML.Excel;
+using Dapper;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -347,6 +348,31 @@ namespace WareHouseManagement.Data
                            LEFT JOIN ProductType pt ON p.ProductTypeId = pt.Id";
             return conn.Query<StockReport>(sql);
         }
+        public IEnumerable<InvoiceProductInfo> GetInvoiceProducts()
+        {
+            using (var conn = new SQLiteConnection(_connectionString))
+            {
+                string sql = @"
+    SELECT 
+Product.ProductName, 
+Product.Series,
+Product.CostPrice,
+    Product.SellPrice,
+    InvoiceCode,
+    InvoiceDetail.Quantity,
+ InvoiceDate,
+  Type
+FROM Invoice
+LEFT JOIN InvoiceDetail  ON Invoice.Id = InvoiceDetail.InvoiceId
+LEFT JOIN Product ON InvoiceDetail.ProductId = Product.Id;
+
+
+
+";
+
+                return conn.Query<InvoiceProductInfo>(sql);
+            }
+        }
 
         // =========================================
         // 6️⃣ Tổng quan Dashboard
@@ -387,6 +413,84 @@ namespace WareHouseManagement.Data
         ORDER BY Month";
             return conn.Query<RevenueStatistic>(sql, new { year = year.ToString() });
 
+        }
+        public void ExportProductsToExcel(string filePath)
+        {
+            var products = GetProducts().ToList();
+
+            using (var workbook = new XLWorkbook())
+            {
+                var ws = workbook.Worksheets.Add("Products");
+                // Header
+                ws.Cell(1, 1).Value = "ID";
+                ws.Cell(1, 2).Value = "Series";
+                ws.Cell(1, 3).Value = "Product Name";
+                ws.Cell(1, 4).Value = "Color";
+                ws.Cell(1, 5).Value = "Capacity";
+                ws.Cell(1, 6).Value = "Cost Price";
+                ws.Cell(1, 7).Value = "Sell Price";
+                ws.Cell(1, 8).Value = "Quantity";
+                ws.Cell(1, 9).Value = "Import Date";
+                ws.Cell(1, 10).Value = "Is Sold";
+                ws.Cell(1, 11).Value = "Product Type";
+
+                // Data
+                for (int i = 0; i < products.Count; i++)
+                {
+                    var p = products[i];
+                    int row = i + 2;
+                    ws.Cell(row, 1).Value = p.Id;
+                    ws.Cell(row, 2).Value = p.Series;
+                    ws.Cell(row, 3).Value = p.ProductName;
+                    ws.Cell(row, 4).Value = p.Color;
+                    ws.Cell(row, 5).Value = p.Capacity;
+                    ws.Cell(row, 6).Value = p.CostPrice;
+                    ws.Cell(row, 7).Value = p.SellPrice;
+                    ws.Cell(row, 8).Value = p.Quantity;
+                    ws.Cell(row, 9).Value = p.ImportDate;
+                    ws.Cell(row, 10).Value = p.IsSold ? "Yes" : "No";
+                    ws.Cell(row, 11).Value = p.ProductTypeName;
+                }
+
+                // Format bảng
+                ws.Columns().AdjustToContents();
+                workbook.SaveAs(filePath);
+            }
+        }
+        public void ImportProductsFromExcel(string filePath)
+        {
+            if (!File.Exists(filePath)) return;
+
+            using (var workbook = new XLWorkbook(filePath))
+            {
+                var ws = workbook.Worksheet(1);
+                var rows = ws.RowsUsed().Skip(1); // bỏ header
+
+                foreach (var row in rows)
+                {
+                    var product = new Product
+                    {
+                        Series = row.Cell(2).GetString(),
+                        ProductName = row.Cell(3).GetString(),
+                        Color = row.Cell(4).GetString(),
+                        Capacity = row.Cell(5).GetString(),
+                        CostPrice = row.Cell(6).GetValue<decimal>(),
+                        SellPrice = row.Cell(7).GetValue<decimal>(),
+                        Quantity = row.Cell(8).GetValue<int>(),
+                        ImportDate = row.Cell(9).GetDateTime(),
+                        IsSold = row.Cell(10).GetString().ToLower() == "yes",
+                        ProductTypeName = row.Cell(11).GetString()
+                    };
+
+                    // map ProductTypeName -> ProductTypeId
+                    var type = GetProductTypes().FirstOrDefault(t => t.TypeName == product.ProductTypeName);
+                    product.ProductTypeId = type?.Id ?? 0;
+
+                    // nếu chưa tồn tại -> insert
+                    if (!IsProductExist(product.Series, product.ProductName))
+                        InsertProduct(product);
+                }
+            }
         }
 
     }

@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -46,21 +47,22 @@ namespace WareHouseManagement.ViewModels
             }
         }
 
-        private ObservableCollection<RevenueStatistic> _statistics = new ObservableCollection<RevenueStatistic>();
-        public ObservableCollection<RevenueStatistic> Statistics
+        private ObservableCollection<InvoiceProductInfo> _InvoiceProductInfo = new ObservableCollection<InvoiceProductInfo>();
+        public ObservableCollection<InvoiceProductInfo> InvoiceProductInfo
         {
-            get => _statistics;
+            get => _InvoiceProductInfo;
             set
             {
-                _statistics = value;
-                OnPropertyChanged(nameof(Statistics));
+                _InvoiceProductInfo = value;
+                OnPropertyChanged(nameof(InvoiceProductInfo));
                 OnPropertyChanged(nameof(TotalRevenue));
                 OnPropertyChanged(nameof(TotalProfit));
             }
         }
 
-        public decimal TotalRevenue => Statistics?.Sum(x => x.TotalRevenue) ?? 0;
-        public decimal TotalProfit => Statistics?.Sum(x => x.TotalProfit) ?? 0;
+        public decimal TotalRevenue => InvoiceProductInfo?.Sum(x => x.SellPrice) ?? 0;
+        public decimal TotalProfit => InvoiceProductInfo?.Sum(x => x.SellPrice - x.CostPrice) ?? 0;
+
 
         // ------------------------------
         // Commands
@@ -74,8 +76,8 @@ namespace WareHouseManagement.ViewModels
         // ------------------------------
         private void LoadRevenueStatistics()
         {
-            var data = _db.GetRevenueByMonth(SelectedYear);
-            Statistics = new ObservableCollection<RevenueStatistic>(data);
+            var data = _db.GetInvoiceProducts();
+            InvoiceProductInfo = new ObservableCollection<InvoiceProductInfo>(data);
         }
 
         private void ExportExcel()
