@@ -25,27 +25,40 @@
 
 
         <!-- Thanh công cụ -->
-        <WrapPanel Grid.Row="1"  Orientation="Horizontal" VerticalAlignment="Center" ItemHeight="40" ItemWidth="Auto" >
+        <WrapPanel Grid.Row="1" Margin="0 0 0 10"  Orientation="Horizontal" VerticalAlignment="Center" ItemHeight="60" ItemWidth="Auto" >
             <Label Content="Tìm kiếm Tên / series:" VerticalAlignment="Center" BorderThickness="0" Margin="0 0 10 0"/>
             <TextBox Width="200" Margin="0 0 10 0"
+                     Height="40"
                      Text="{Binding Keyword, UpdateSourceTrigger=PropertyChanged}"
                      />
-            <Label Content="Loại :" VerticalAlignment="Center" BorderThickness="0" Margin="0 0 10 0"/>
+            <Label Content="Loại :" 
+                   VerticalAlignment="Center" 
+                   BorderThickness="0" 
+                   Margin="0 0 10 0"
+                   />
                 <ComboBox ItemsSource="{Binding ProductTypes}"
                             SelectedItem="{Binding SelectedProductType, Mode=TwoWay}"
-          SelectedValuePath="Id"
-          DisplayMemberPath="TypeName"
-          Height="25"
-          Margin="0 5"/>
+                              SelectedValuePath="Id"
+                              DisplayMemberPath="TypeName"
+                              Height="30"
+                              Margin="0 5"/>
 
-                <Button Content="Tìm Kiếm" Command="{Binding SearchCommand}" Width="70" Margin="20 0 10 0"/>
-            <Button Content="Thêm sản phẩm" Command="{Binding AddCommand}" Width="150" Background="#4CAF50" Foreground="White" Margin="0 0 10 0"/>
+            <Button Content="Tìm Kiếm"
+                    Command="{Binding SearchCommand}" 
+                    Width="70" 
+                      Height="30"
+                    Margin="20 0 10 0"/>
+            <Button Content="Thêm sản phẩm" 
+                    Command="{Binding AddCommand}"
+                    Width="150" 
+                      Height="30"
+                    Background="#4CAF50" Foreground="White" Margin="0 0 10 0"/>
             <!--<Button Content="Làm mới" Command="{Binding RefreshCommand}" Width="100" Background="#2196F3" Foreground="White"/>-->
 
             <Button Content="Import Excel"
                      Command="{Binding ImportCommand}" 
                      Width="160"
-                     Height="60"   
+                     Height="50"   
                      Margin="10,0,0,0"
                     
       Background="#2196F3" Foreground="White"/>
@@ -53,7 +66,7 @@
             <Button 
                       Command="{Binding ExportCommand}"
                       Width="160"
-                      Height="60"
+                      Height="50"
                       Margin="10,0,0,0"
                       Background="Green"
                        >

@@ -60,8 +60,30 @@ namespace WareHouseManagement.ViewModels
             }
         }
 
-        public decimal TotalRevenue => InvoiceProductInfo?.Sum(x => x.SellPrice) ?? 0;
-        public decimal TotalProfit => InvoiceProductInfo?.Sum(x => x.SellPrice - x.CostPrice) ?? 0;
+        public decimal TotalRevenue => InvoiceProductInfo?.Sum(x => x.SellPrice *x.Quantity) ?? 0;
+        public decimal TotalProfit => InvoiceProductInfo?.Sum(x => (x.SellPrice - x.CostPrice)*x.Quantity) ?? 0;
+
+        private DateTime _fromDate = DateTime.Now.AddMonths(-1);
+        public DateTime FromDate
+        {
+            get => _fromDate;
+            set
+            {
+                SetProperty(ref _fromDate, value);
+                LoadRevenueStatistics();
+            }
+        }
+
+        private DateTime _toDate = DateTime.Now;
+        public DateTime ToDate
+        {
+            get => _toDate;
+            set
+            {
+                SetProperty(ref _toDate, value);
+                LoadRevenueStatistics();
+            }
+        }
 
 
         // ------------------------------
@@ -76,9 +98,10 @@ namespace WareHouseManagement.ViewModels
         // ------------------------------
         private void LoadRevenueStatistics()
         {
-            var data = _db.GetInvoiceProducts();
+            var data = _db.GetInvoiceProductsByDate(FromDate, ToDate);
             InvoiceProductInfo = new ObservableCollection<InvoiceProductInfo>(data);
         }
+
 
         private void ExportExcel()
         {

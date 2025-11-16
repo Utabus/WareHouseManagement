@@ -23,7 +23,6 @@ namespace WareHouseManagement.Views
         public ThongKeUC()
         {
             InitializeComponent();
-            DataContext  = new ViewModels.ThongKeViewModel();
         }
     }
 }

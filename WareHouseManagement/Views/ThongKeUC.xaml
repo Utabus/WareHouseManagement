@@ -20,10 +20,13 @@
 
         <!-- Filter -->
         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,10" >
-            <TextBlock Text="Chọn năm:" VerticalAlignment="Center"/>
-            <ComboBox ItemsSource="{Binding Years}" SelectedItem="{Binding SelectedYear}" Width="100"/>
-            <Button Content="Xuất Excel" Command="{Binding ExportExcelCommand}" Width="100"/>
-            <Button Content="Xuất PDF" Command="{Binding ExportPdfCommand}" Width="100"/>
+            <TextBlock Text="Từ ngày:" VerticalAlignment="Center"/>
+            <DatePicker SelectedDate="{Binding FromDate}" Width="150" Margin="5,0"/>
+
+            <TextBlock Text="Đến ngày:" VerticalAlignment="Center"/>
+            <DatePicker SelectedDate="{Binding ToDate}" Width="150" Margin="5,0"/>
+
+            <Button Content="Tìm kiếm" Command="{Binding LoadRevenueStatisticsCommand}" Margin="10,0"/>
         </StackPanel>
 
         <!-- DataGrid hiển thị doanh thu -->

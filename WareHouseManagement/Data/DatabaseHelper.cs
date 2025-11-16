@@ -256,6 +256,15 @@ namespace WareHouseManagement.Data
              var conn = CreateConnection();
             conn.Execute("DELETE FROM Product WHERE Id=@id", new { id });
         }
+        public bool IsProductUsed(int productId)
+        {
+            using (var conn = CreateConnection())
+            {
+                string sql = "SELECT COUNT(*) FROM InvoiceDetail WHERE ProductId = @Id";
+                return conn.ExecuteScalar<int>(sql, new { Id = productId }) > 0;
+            }
+        }
+
         public bool IsProductExist(string series, string productName, int excludeId = 0)
         {
             using (var conn = new SQLiteConnection(_connectionString))
@@ -373,6 +382,33 @@ LEFT JOIN Product ON InvoiceDetail.ProductId = Product.Id;
                 return conn.Query<InvoiceProductInfo>(sql);
             }
         }
+        public IEnumerable<InvoiceProductInfo> GetInvoiceProductsByDate(DateTime from, DateTime to)
+        {
+            using (var conn = new SQLiteConnection(_connectionString))
+            {
+                string sql = @"
+            SELECT 
+                Product.ProductName, 
+                Product.Series,
+                Product.CostPrice,
+                Product.SellPrice,
+                InvoiceCode,
+                InvoiceDetail.Quantity,
+                InvoiceDate,
+                Type
+            FROM Invoice
+            LEFT JOIN InvoiceDetail ON Invoice.Id = InvoiceDetail.InvoiceId
+            LEFT JOIN Product ON InvoiceDetail.ProductId = Product.Id
+            WHERE DATE(InvoiceDate) BETWEEN DATE(@FromDate) AND DATE(@ToDate);
+        ";
+
+                return conn.Query<InvoiceProductInfo>(sql, new
+                {
+                    FromDate = from.ToString("yyyy-MM-dd"),
+                    ToDate = to.ToString("yyyy-MM-dd")
+                });
+            }
+        }
 
         // =========================================
         // 6️⃣ Tổng quan Dashboard
@@ -461,36 +497,68 @@ LEFT JOIN Product ON InvoiceDetail.ProductId = Product.Id;
         {
             if (!File.Exists(filePath)) return;
 
+            // Cache loại sản phẩm
+            var productTypes = GetProductTypes();
+            var typeDict = productTypes.ToDictionary(x => x.TypeName, x => x.Id);
+
             using (var workbook = new XLWorkbook(filePath))
             {
                 var ws = workbook.Worksheet(1);
-                var rows = ws.RowsUsed().Skip(1); // bỏ header
+                var rows = ws.RowsUsed().Skip(1); // Skip header
 
                 foreach (var row in rows)
                 {
-                    var product = new Product
+                    try
                     {
-                        Series = row.Cell(2).GetString(),
-                        ProductName = row.Cell(3).GetString(),
-                        Color = row.Cell(4).GetString(),
-                        Capacity = row.Cell(5).GetString(),
-                        CostPrice = row.Cell(6).GetValue<decimal>(),
-                        SellPrice = row.Cell(7).GetValue<decimal>(),
-                        Quantity = row.Cell(8).GetValue<int>(),
-                        ImportDate = row.Cell(9).GetDateTime(),
-                        IsSold = row.Cell(10).GetString().ToLower() == "yes",
-                        ProductTypeName = row.Cell(11).GetString()
-                    };
+                        var product = new Product
+                        {
+                            Series = row.Cell(2).GetString()?.Trim(),
+                            ProductName = row.Cell(3).GetString()?.Trim(),
+                            Color = row.Cell(4).GetString()?.Trim(),
+                            Capacity = row.Cell(5).GetString()?.Trim(),
+                            CostPrice = SafeDecimal(row.Cell(6)),
+                            SellPrice = SafeDecimal(row.Cell(7)),
+                            Quantity = SafeInt(row.Cell(8)),
+                            ImportDate = SafeDate(row.Cell(9)),
+                            IsSold = row.Cell(10).GetString()?.Trim().ToLower() == "yes",
+                            ProductTypeName = row.Cell(11).GetString()?.Trim(),
+                        };
 
-                    // map ProductTypeName -> ProductTypeId
-                    var type = GetProductTypes().FirstOrDefault(t => t.TypeName == product.ProductTypeName);
-                    product.ProductTypeId = type?.Id ?? 0;
+                        // Map TypeName → TypeId
+                        if (typeDict.TryGetValue(product.ProductTypeName ?? "", out int typeId))
+                            product.ProductTypeId = typeId;
+                        else
+                            product.ProductTypeId = 0;
 
-                    // nếu chưa tồn tại -> insert
-                    if (!IsProductExist(product.Series, product.ProductName))
-                        InsertProduct(product);
+                        // Insert nếu chưa tồn tại
+                        if (!IsProductExist(product.Series, product.ProductName))
+                            InsertProduct(product);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Có thể log hoặc notify dev
+                        Console.WriteLine($"Lỗi import dòng {row.RowNumber()}: {ex.Message}");
+                    }
                 }
             }
+        }
+
+        // Helpers tránh crash
+        private decimal SafeDecimal(IXLCell cell)
+        {
+            return decimal.TryParse(cell.GetString(), out var val) ? val : 0;
+        }
+
+        private int SafeInt(IXLCell cell)
+        {
+            return int.TryParse(cell.GetString(), out var val) ? val : 0;
+        }
+
+        private DateTime SafeDate(IXLCell cell)
+        {
+            return DateTime.TryParse(cell.GetString(), out var val)
+                ? val
+                : DateTime.Now;
         }
 
     }

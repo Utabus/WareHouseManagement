@@ -140,12 +140,20 @@ namespace WareHouseManagement.ViewModels
 
         public void DeleteProduct(Product p)
         {
+            if (_repo.IsProductUsed(p.Id))
+            {
+                HandyControl.Controls.MessageBox.Error("❌ Sản phẩm đang nằm trong hóa đơn, không thể xóa.");
+                return;
+            }
+
             if (MessageBox.Show($"Bạn có chắc muốn xóa sản phẩm '{p.ProductName}'?",
                 "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
             {
                 _repo.DeleteProduct(p.Id);
                 LoadProducts();
+                HandyControl.Controls.MessageBox.Success("🗑️ Xóa thành công!");
             }
         }
+
     }
 }
