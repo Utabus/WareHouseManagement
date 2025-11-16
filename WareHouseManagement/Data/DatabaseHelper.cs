@@ -327,10 +327,25 @@ namespace WareHouseManagement.Data
             }
         }
 
-        public IEnumerable<Invoice> GetInvoices()
+        public IEnumerable<Invoice> GetInvoicesByDate(DateTime fromDate, DateTime toDate)
         {
-             var conn = CreateConnection();
-            return conn.Query<Invoice>("SELECT * FROM Invoice ORDER BY InvoiceDate DESC");
+            using (var conn = CreateConnection())
+            {
+                string sql = @"
+            SELECT *
+            FROM Invoice
+            WHERE InvoiceDate BETWEEN @FromDate AND @ToDate
+            ORDER BY InvoiceDate DESC";
+
+                return conn.Query<Invoice>(
+                    sql,
+                    new
+                    {
+                        FromDate = fromDate.Date,
+                        ToDate = toDate.Date.AddDays(1).AddSeconds(-1) // bao trùm hết ngày cuối
+                    }
+                );
+            }
         }
 
         public IEnumerable<InvoiceDetail> GetInvoiceDetails(int invoiceId)

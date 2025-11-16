@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -33,47 +34,62 @@ namespace WareHouseManagement.ViewModels
                 OnPropertyChanged(nameof(Keyword));
             }
         }
+        private DateTime _fromDate = DateTime.Now.AddMonths(-1);
+        public DateTime FromDate
+        {
+            get => _fromDate;
+            set
+            {
+                _fromDate = value;
+                OnPropertyChanged(nameof(FromDate));
+                Search();
+
+            }
+        }
+
+        private DateTime _toDate = DateTime.Now;
+        public DateTime ToDate
+        {
+            get => _toDate;
+            set
+            {
+                _toDate = value;
+                OnPropertyChanged(nameof(ToDate));
+                Search();
+
+            }
+        }
 
         // Command
-        public ICommand SearchCommand { get; }
+        public ICommand LoadRevenueStatisticsCommand { get; }
         public ICommand RefreshCommand { get; }
 
         public HoaDonViewModel()
         {
             // đúng thứ tự: hành động thực thi, điều kiện (có thể null)
-            SearchCommand = new RelayCommand(_ => Search());
+            LoadRevenueStatisticsCommand = new RelayCommand(_ => Search());
             RefreshCommand = new RelayCommand(_ => Refresh());
 
-            LoadInvoices();
+            Search();
         }
 
-        private void LoadInvoices()
-        {
-            var list = _db.GetInvoices().ToList();
-            Invoices = new ObservableCollection<Invoice>(list);
-        }
+        //private void LoadInvoices()
+        //{
+        //    var list = _db.GetInvoices().ToList();
+        //    Invoices = new ObservableCollection<Invoice>(list);
+        //}
 
         private void Search()
         {
-            var list = _db.GetInvoices();
-
-            if (!string.IsNullOrWhiteSpace(Keyword))
-            {
-                string lower = Keyword.Trim().ToLower();
-                list = list.Where(x =>
-                    x.InvoiceCode.ToLower().Contains(lower) ||
-                    x.Type.ToLower().Contains(lower) ||
-                    x.InvoiceDate.ToString("dd/MM/yyyy").Contains(lower)
-                );
-            }
-
+            var list = _db.GetInvoicesByDate(FromDate, ToDate);
             Invoices = new ObservableCollection<Invoice>(list);
         }
+
 
         private void Refresh()
         {
             Keyword = string.Empty;
-            LoadInvoices();
+            Search();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
