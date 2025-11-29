@@ -13,6 +13,35 @@ namespace WareHouseManagement.ViewModels
     public class DashboardViewModel : INotifyPropertyChanged
     {
         private readonly DatabaseHelper _db = new DatabaseHelper();
+        private DateTime _fromDate;
+        public DateTime FromDate
+        {
+            get => _fromDate;
+            set
+            {
+                if (_fromDate != value)
+                {
+                    _fromDate = value;
+                    OnPropertyChanged(nameof(FromDate));
+                    LoadRevenueData(_fromDate, _toDate);
+                }
+            }
+        }
+
+        private DateTime _toDate;
+        public DateTime ToDate
+        {
+            get => _toDate;
+            set
+            {
+                if (_toDate != value)
+                {
+                    _toDate = value;
+                    OnPropertyChanged(nameof(ToDate));
+                    LoadRevenueData(_fromDate, _toDate);
+                }
+            }
+        }
 
         private DashboardSummary _summary;
         public DashboardSummary Summary
@@ -69,20 +98,20 @@ namespace WareHouseManagement.ViewModels
             }
         }
 
-        private int _selectedYear;
-        public int SelectedYear
-        {
-            get { return _selectedYear; }
-            set
-            {
-                if (_selectedYear != value)
-                {
-                    _selectedYear = value;
-                    OnPropertyChanged("SelectedYear");
-                    LoadRevenueData(_selectedYear);
-                }
-            }
-        }
+        //private int _selectedYear;
+        //public int SelectedYear
+        //{
+        //    get { return _selectedYear; }
+        //    set
+        //    {
+        //        if (_selectedYear != value)
+        //        {
+        //            _selectedYear = value;
+        //            OnPropertyChanged("SelectedYear");
+        //            LoadRevenueData(_selectedYear);
+        //        }
+        //    }
+        //}
 
         public DashboardViewModel()
         {
@@ -94,11 +123,14 @@ namespace WareHouseManagement.ViewModels
                 for (int i = 2020; i <= DateTime.Now.Year; i++)
                     Years.Add(i);
 
-                SelectedYear = DateTime.Now.Year;
+                //SelectedYear = DateTime.Now.Year;
 
                 YFormatter = value => value.ToString("N0") + " đ";
 
-                LoadRevenueData(SelectedYear);
+                ToDate = DateTime.Today;
+                FromDate = DateTime.Now.AddMonths(-1);
+                LoadRevenueData(FromDate, ToDate);
+
             }
             catch (Exception ex)
             {
@@ -107,40 +139,45 @@ namespace WareHouseManagement.ViewModels
         }
 
 
-        private void LoadRevenueData(int year)
+        private void LoadRevenueData(DateTime from, DateTime to)
         {
-            var data = _db.GetRevenueByMonth(year).ToList();
+            var data = _db.GetRevenueByDate(from, to).ToList();
 
-            string[] months = Enumerable.Range(1, 12).Select(m => m.ToString("00")).ToArray();
-            Labels = months.Select(m => "T" + m).ToArray(); // nhãn hiển thị T01, T02...
+            var allDays = Enumerable.Range(0, (to - from).Days + 2)
+                .Select(d => from.AddDays(d))
+                .ToList();
 
+            Labels = allDays
+                .Select(d => d.ToString("dd/MM"))
+                .ToArray();
 
-            double[] revenueValues = months
-      .Select(m => (double)(data.FirstOrDefault(x => x.Month == m)?.TotalRevenue ?? 0))
-      .ToArray();
+            double[] revenueValues = allDays
+                .Select(d => (double)(data.FirstOrDefault(x => x.InvoiceDate.Date == d.Date)?.TotalRevenue ?? 0))
+                .ToArray();
 
-            double[] profitValues = months
-                .Select(m => (double)(data.FirstOrDefault(x => x.Month == m)?.TotalProfit ?? 0))
+            double[] profitValues = allDays
+                .Select(d => (double)(data.FirstOrDefault(x => x.InvoiceDate.Date == d.Date)?.TotalProfit ?? 0))
                 .ToArray();
 
             RevenueSeries = new SeriesCollection
-            {
-                new ColumnSeries
-                {
-                    Title = "Doanh thu",
-                    Values = new ChartValues<double>(revenueValues),
-                    Fill = new SolidColorBrush(Color.FromRgb(63,81,181))
-                },
-                new LineSeries
-                {
-                    Title = "Lợi nhuận",
-                    Values = new ChartValues<double>(profitValues),
-                    Stroke = new SolidColorBrush(Color.FromRgb(233,30,99)),
-                    Fill = Brushes.Transparent,
-                    PointGeometrySize = 8
-                }
-            };
+    {
+        new ColumnSeries
+        {
+            Title = "Doanh thu",
+            Values = new ChartValues<double>(revenueValues),
+            Fill = new SolidColorBrush(Color.FromRgb(63,81,181))
+        },
+        new LineSeries
+        {
+            Title = "Lợi nhuận",
+            Values = new ChartValues<double>(profitValues),
+            Stroke = new SolidColorBrush(Color.FromRgb(233,30,99)),
+            Fill = Brushes.Transparent,
+            PointGeometrySize = 8
         }
+    };
+        }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName)

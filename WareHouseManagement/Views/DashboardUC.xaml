@@ -64,12 +64,14 @@
                 </Border>
             </UniformGrid>
 
-            <!-- Chọn năm -->
             <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,20">
-                <TextBlock Text="Năm:" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                <ComboBox Width="100" ItemsSource="{Binding Years}" 
-                          SelectedItem="{Binding SelectedYear}" />
+                <TextBlock Text="Từ:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <DatePicker Width="130" SelectedDate="{Binding FromDate}"/>
+
+                <TextBlock Text="Đến:" VerticalAlignment="Center" Margin="20,0,10,0"/>
+                <DatePicker Width="130" SelectedDate="{Binding ToDate}"/>
             </StackPanel>
+
 
             <!-- Biểu đồ doanh thu -->
             <Border Grid.Row="2" Background="White" CornerRadius="10" Padding="15">

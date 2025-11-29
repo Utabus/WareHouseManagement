@@ -123,18 +123,23 @@ namespace WareHouseManagement.ViewModels
                     MessageBox.Show("Số lượng không được âm!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
+                if (Product.ProductTypeId < 1)
+                {
+                    MessageBox.Show("Vui lòng chọn Loại sản phẩm", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
 
                 // Kiểm tra trùng Series hoặc Tên khi thêm mới
-                if (!_isEdit && _repo.IsProductExist(Product.Series, Product.ProductName))
+                if (!_isEdit && _repo.IsProductExist(Product.Series ))
                 {
-                    MessageBox.Show("Series hoặc Tên sản phẩm đã tồn tại!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Series đã tồn tại!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
                 // Kiểm tra trùng khi update, loại bỏ bản đang sửa
-                if (_isEdit && _repo.IsProductExist(Product.Series, Product.ProductName, Product.Id))
+                if (_isEdit && _repo.IsProductExist(Product.Series, Product.Id))
                 {
-                    MessageBox.Show("Series hoặc Tên sản phẩm đã tồn tại!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Series  đã tồn tại!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 

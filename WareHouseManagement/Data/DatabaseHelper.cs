@@ -54,7 +54,7 @@ namespace WareHouseManagement.Data
     };
             foreach (var p in products)
             {
-                if (!IsProductExist(p.Series, p.ProductName))
+                if (!IsProductExist(p.Series))
                     InsertProduct(p);
             }
 
@@ -228,6 +228,7 @@ namespace WareHouseManagement.Data
             string sql = @"SELECT p.*, pt.TypeName AS ProductTypeName 
                            FROM Product p 
                            LEFT JOIN ProductType pt ON p.ProductTypeId = pt.Id
+                            Where Quantity > 0
                            ORDER BY p.Id DESC";
             return conn.Query<Product>(sql);
         }
@@ -242,14 +243,24 @@ namespace WareHouseManagement.Data
 
         public void UpdateProduct(Product p)
         {
-            var conn = CreateConnection();
-            string sql = @"UPDATE Product SET 
-                            ProductName=@ProductName, Color=@Color, Capacity=@Capacity,
-                            CostPrice=@CostPrice, SellPrice=@SellPrice, Quantity=@Quantity, 
-                            IsSold=@IsSold, ProductTypeId=@ProductTypeId 
-                           WHERE Series=@Series";
-            conn.Execute(sql, p);
+            using (var conn = CreateConnection())
+            {
+                string sql = @"UPDATE Product SET 
+                          Series=@Series,
+                          ProductName=@ProductName,
+                          Color=@Color,
+                          Capacity=@Capacity,
+                          CostPrice=@CostPrice,
+                          SellPrice=@SellPrice,
+                          Quantity=@Quantity,
+                          IsSold=@IsSold,
+                          ProductTypeId=@ProductTypeId
+                       WHERE Id=@Id";
+
+                conn.Execute(sql, p);
+            }
         }
+
 
         public void DeleteProduct(int id)
         {
@@ -265,23 +276,23 @@ namespace WareHouseManagement.Data
             }
         }
 
-        public bool IsProductExist(string series, string productName, int excludeId = 0)
+        public bool IsProductExist(string series, int excludeId = 0)
         {
             using (var conn = new SQLiteConnection(_connectionString))
             {
                 conn.Open();
                 string sql = @"SELECT COUNT(*) FROM Product 
-                       WHERE (Series = @Series OR ProductName = @ProductName)
+                       WHERE Series = @Series
                          AND (@ExcludeId = 0 OR Id <> @ExcludeId)";
                 using (var cmd = new SQLiteCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("@Series", series);
-                    cmd.Parameters.AddWithValue("@ProductName", productName);
                     cmd.Parameters.AddWithValue("@ExcludeId", excludeId);
                     return Convert.ToInt32(cmd.ExecuteScalar()) > 0;
                 }
             }
         }
+
 
         // =========================================
         // 4️⃣ CRUD: Invoice + InvoiceDetail
@@ -450,21 +461,26 @@ LEFT JOIN Product ON InvoiceDetail.ProductId = Product.Id;
         }
 
 
-        public IEnumerable<RevenueStatistic> GetRevenueByMonth(int year)
+        public IEnumerable<RevenueStatistic> GetRevenueByDate(DateTime from, DateTime to)
         {
             var conn = CreateConnection();
             string sql = @"
         SELECT 
-            strftime('%m', InvoiceDate) AS Month,
+            DATE(InvoiceDate) AS InvoiceDate,
             SUM(TotalAmount) AS TotalRevenue,
             SUM(Profit) AS TotalProfit
         FROM Invoice
-        WHERE strftime('%Y', InvoiceDate) = @year
-        GROUP BY strftime('%m', InvoiceDate)
-        ORDER BY Month";
-            return conn.Query<RevenueStatistic>(sql, new { year = year.ToString() });
+        WHERE DATE(InvoiceDate) BETWEEN @from AND @to
+        GROUP BY DATE(InvoiceDate)
+        ORDER BY InvoiceDate";
 
+            return conn.Query<RevenueStatistic>(sql, new
+            {
+                from = from.ToString("yyyy-MM-dd"),
+                to = to.ToString("yyyy-MM-dd")
+            });
         }
+
         public void ExportProductsToExcel(string filePath)
         {
             var products = GetProducts().ToList();
@@ -546,7 +562,7 @@ LEFT JOIN Product ON InvoiceDetail.ProductId = Product.Id;
                             product.ProductTypeId = 0;
 
                         // Insert nếu chưa tồn tại
-                        if (!IsProductExist(product.Series, product.ProductName))
+                        if (!IsProductExist(product.Series))
                             InsertProduct(product);
                     }
                     catch (Exception ex)

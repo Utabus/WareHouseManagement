@@ -1,4 +1,6 @@
-﻿namespace WareHouseManagement.Models
+﻿using System;
+
+namespace WareHouseManagement.Models
 {
     public class DashboardSummary
     {
@@ -10,6 +12,8 @@
     }
     public class RevenueStatistic
     {
+        public DateTime InvoiceDate { get; set; }
+
         public string Month { get; set; }
         public decimal TotalRevenue { get; set; }
         public decimal TotalProfit { get; set; }
