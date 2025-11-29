@@ -32,6 +32,13 @@
             <DatePicker SelectedDate="{Binding ToDate}" Width="150" Margin="5,0"/>
 
             <Button Content="Tìm kiếm" Command="{Binding LoadRevenueStatisticsCommand}" Margin="10,0"/>
+
+            <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,10">
+                <TextBlock Text="Tổng công nợ: " FontWeight="Bold" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding TongCongNo, StringFormat={}{0:N0} VNĐ}" 
+               Foreground="Red" FontSize="16" FontWeight="Bold" Margin="5,0"/>
+            </StackPanel>
+
         </StackPanel>
 
         <!-- Bảng danh sách hóa đơn -->
@@ -43,7 +50,35 @@
                 <DataGridTextColumn Header="Loại" Binding="{Binding Type}" Width="*"/>
                 <DataGridTextColumn Header="Tổng tiền" Binding="{Binding TotalAmount, StringFormat={}{0:N0} VNĐ}" Width="*"/>
                 <DataGridTextColumn Header="Lợi nhuận" Binding="{Binding Profit, StringFormat={}{0:N0} VNĐ}" Width="*"/>
-            
+                <DataGridTemplateColumn Header="Công nợ" Width="*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock>
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="Đã thanh toán"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsDebt}" Value="True">
+                                                <Setter Property="Text" Value="Công nợ"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Thao tác" Width="*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="Cập nhật " Width="Auto" Height="Auto"
+                    Command="{Binding DataContext.CapNhatCongNoCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                    CommandParameter="{Binding}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
             </DataGrid.Columns>
         </DataGrid>
 

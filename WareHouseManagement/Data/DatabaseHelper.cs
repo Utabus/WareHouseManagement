@@ -149,7 +149,8 @@ namespace WareHouseManagement.Data
                     InvoiceDate TEXT NOT NULL,
                     Type TEXT NOT NULL,
                     TotalAmount REAL DEFAULT 0,
-                    Profit REAL DEFAULT 0
+                    Profit REAL DEFAULT 0,
+                     IsDebt INTEGER DEFAULT 0   
                 );
 
                 CREATE TABLE IF NOT EXISTS InvoiceDetail (
@@ -299,44 +300,71 @@ namespace WareHouseManagement.Data
         // =========================================
         public int InsertInvoice(Invoice invoice, List<InvoiceDetail> details)
         {
-             var conn = CreateConnection();
-            conn.Open();
-             var tran = conn.BeginTransaction();
-
-            try
+            using (var conn = CreateConnection())
             {
-                string sqlInvoice = @"INSERT INTO Invoice (InvoiceCode, InvoiceDate, Type, TotalAmount, Profit)
-                                      VALUES (@InvoiceCode, @InvoiceDate, @Type, @TotalAmount, @Profit);
-                                      SELECT last_insert_rowid();";
-                int invoiceId = conn.ExecuteScalar<int>(sqlInvoice, invoice, tran);
-
-                foreach (var d in details)
+                conn.Open();
+                using (var tran = conn.BeginTransaction())
                 {
-                    d.InvoiceId = invoiceId;
-                    string sqlDetail = @"INSERT INTO InvoiceDetail (InvoiceId, ProductId, Quantity, UnitPrice, Total)
-                                         VALUES (@InvoiceId, @ProductId, @Quantity, @UnitPrice, @Total)";
-                    conn.Execute(sqlDetail, d, tran);
+                    try
+                    {
+                        string sqlInvoice = @"
+                INSERT INTO Invoice (InvoiceCode, InvoiceDate, Type, TotalAmount, Profit, IsDebt)
+                VALUES (@InvoiceCode, @InvoiceDate, @Type, @TotalAmount, @Profit, @IsDebt);
+                SELECT last_insert_rowid();";
 
-                    // Cập nhật số lượng tồn kho
-                    if (invoice.Type == "Export")
-                    {
-                        conn.Execute("UPDATE Product SET Quantity = Quantity - @q WHERE Id = @id", new { q = d.Quantity, id = d.ProductId }, tran);
+                        int invoiceId = conn.ExecuteScalar<int>(sqlInvoice, invoice, tran);
+
+                        foreach (var d in details)
+                        {
+                            d.InvoiceId = invoiceId;
+                            string sqlDetail = @"
+                    INSERT INTO InvoiceDetail (InvoiceId, ProductId, Quantity, UnitPrice, Total)
+                    VALUES (@InvoiceId, @ProductId, @Quantity, @UnitPrice, @Total);";
+
+                            conn.Execute(sqlDetail, d, tran);
+
+                            // Cập nhật tồn kho
+                            if (invoice.Type == "Export")
+                            {
+                                conn.Execute("UPDATE Product SET Quantity = Quantity - @q WHERE Id = @id",
+                                    new { q = d.Quantity, id = d.ProductId }, tran);
+                            }
+                            else
+                            {
+                                conn.Execute("UPDATE Product SET Quantity = Quantity + @q WHERE Id = @id",
+                                    new { q = d.Quantity, id = d.ProductId }, tran);
+                            }
+                        }
+
+                        tran.Commit();
+                        return invoiceId;
                     }
-                    else
+                    catch
                     {
-                        conn.Execute("UPDATE Product SET Quantity = Quantity + @q WHERE Id = @id", new { q = d.Quantity, id = d.ProductId }, tran);
+                        tran.Rollback();
+                        throw;
                     }
                 }
-
-                tran.Commit();
-                return invoiceId;
-            }
-            catch
-            {
-                tran.Rollback();
-                throw;
             }
         }
+        public bool UpdateInvoiceDebt(int invoiceId, bool isDebt)
+        {
+            using (var conn = CreateConnection())
+            {
+                string sql = @"UPDATE Invoice
+                       SET IsDebt = @IsDebt
+                       WHERE Id = @Id";
+
+                int rows = conn.Execute(sql, new
+                {
+                    IsDebt = isDebt ? 1 : 0,
+                    Id = invoiceId
+                });
+
+                return rows > 0;
+            }
+        }
+
 
         public IEnumerable<Invoice> GetInvoicesByDate(DateTime fromDate, DateTime toDate)
         {

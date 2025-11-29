@@ -59,17 +59,21 @@ namespace WareHouseManagement.ViewModels
 
             }
         }
+        public decimal TongCongNo
+        {
+            get => Invoices?.Where(x => x.IsDebt).Sum(x => x.TotalAmount) ?? 0;
+        }
 
         // Command
         public ICommand LoadRevenueStatisticsCommand { get; }
         public ICommand RefreshCommand { get; }
-
+        public ICommand CapNhatCongNoCommand { get; }
         public HoaDonViewModel()
         {
             // đúng thứ tự: hành động thực thi, điều kiện (có thể null)
             LoadRevenueStatisticsCommand = new RelayCommand(_ => Search());
             RefreshCommand = new RelayCommand(_ => Refresh());
-
+            CapNhatCongNoCommand = new RelayCommand<Invoice>(invoice => invoice != null, UpdateDebt);
             Search();
         }
 
@@ -79,12 +83,32 @@ namespace WareHouseManagement.ViewModels
         //    Invoices = new ObservableCollection<Invoice>(list);
         //}
 
+        private void UpdateDebt(Invoice invoice)
+        {
+            if (invoice == null) return;
+
+            // Đổi trạng thái nợ
+            bool newDebtStatus = !invoice.IsDebt;
+
+            // Cập nhật vào DB
+            bool success = _db.UpdateInvoiceDebt(invoice.Id, newDebtStatus);
+
+            if (success)
+            {
+                invoice.IsDebt = newDebtStatus;
+                OnPropertyChanged(nameof(TongCongNo));
+                // Có thể hiển thị thông báo
+                System.Windows.MessageBox.Show($"Hóa đơn {(newDebtStatus ? "công nợ" : "đã thanh toán")} thành công!",
+                                               "Thông báo", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+            }
+        }
         private void Search()
         {
             var list = _db.GetInvoicesByDate(FromDate, ToDate);
             Invoices = new ObservableCollection<Invoice>(list);
-        }
 
+            OnPropertyChanged(nameof(TongCongNo));
+        }
 
         private void Refresh()
         {

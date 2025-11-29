@@ -38,6 +38,12 @@ namespace WareHouseManagement.ViewModels.BanHang
             TongTien = GioHang.Sum(x => x.Total);
             LoiNhuan = GioHang.Sum(x => (x.UnitPrice - x.CostPrice) * x.Quantity);
         }
+        private bool isDebt; // true = nợ, false = đã thanh toán
+        public bool IsDebt
+        {
+            get => isDebt;
+            set => SetProperty(ref isDebt, value);
+        }
 
 
         public ICommand ThemVaoGioCommand { get; }
@@ -139,8 +145,10 @@ namespace WareHouseManagement.ViewModels.BanHang
                     InvoiceDate = DateTime.Now,
                     Type = "Export",
                     TotalAmount = TongTien,
-                    Profit = LoiNhuan
+                    Profit = LoiNhuan,
+                    IsDebt = this.IsDebt // bind trực tiếp từ ComboBox
                 };
+
 
                 var details = GioHang.Select(x => new InvoiceDetail
                 {
