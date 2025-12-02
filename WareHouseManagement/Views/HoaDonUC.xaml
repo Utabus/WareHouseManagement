@@ -5,10 +5,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:WareHouseManagement.Views"
              mc:Ignorable="d" 
+                xmlns:hc="https://handyorg.github.io/handycontrol"
              >
 
     <Grid Margin="10">
         <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
             <RowDefinition Height="40"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -30,21 +32,29 @@
 
             <TextBlock Text="Đến ngày:" VerticalAlignment="Center"/>
             <DatePicker SelectedDate="{Binding ToDate}" Width="150" Margin="5,0"/>
+            <TextBox Width="180"
+         Margin="10,0,0,0"
+         Text="{Binding Keyword, UpdateSourceTrigger=PropertyChanged}"
+         VerticalAlignment="Center"
+          hc:InfoElement.Placeholder="Tìm khách / mã..."
+         />
+            <Button Content="Làm mới" Command="{Binding RefreshCommand}" Margin="10,0"/>
 
             <Button Content="Tìm kiếm" Command="{Binding LoadRevenueStatisticsCommand}" Margin="10,0"/>
 
-            <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,10">
-                <TextBlock Text="Tổng công nợ: " FontWeight="Bold" VerticalAlignment="Center"/>
-                <TextBlock Text="{Binding TongCongNo, StringFormat={}{0:N0} VNĐ}" 
-               Foreground="Red" FontSize="16" FontWeight="Bold" Margin="5,0"/>
-            </StackPanel>
 
+        </StackPanel>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,10">
+            <TextBlock Text="Tổng công nợ: " FontWeight="Bold" VerticalAlignment="Center"/>
+            <TextBlock Text="{Binding TongCongNo, StringFormat={}{0:N0} VNĐ}" 
+     Foreground="Red" FontSize="16" FontWeight="Bold" Margin="5,0"/>
         </StackPanel>
 
         <!-- Bảng danh sách hóa đơn -->
-        <DataGrid ItemsSource="{Binding Invoices}" Grid.Row="2" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" SelectionMode="Single">
+        <DataGrid ItemsSource="{Binding Invoices}" Grid.Row="3" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" SelectionMode="Single">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="*"/>
+                <DataGridTextColumn Header="Tên khách hàng" Binding="{Binding CustomerName}" Width="*"/>
                 <DataGridTextColumn Header="Mã hóa đơn" Binding="{Binding InvoiceCode}" Width="*"/>
                 <DataGridTextColumn Header="Ngày" Binding="{Binding InvoiceDate}" Width="*"/>
                 <DataGridTextColumn Header="Loại" Binding="{Binding Type}" Width="*"/>
@@ -67,7 +77,7 @@
                             </TextBlock>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
-                    
+
                 </DataGridTemplateColumn>
                 <DataGridTemplateColumn Header="Thao tác" Width="*">
                     <DataGridTemplateColumn.CellTemplate>

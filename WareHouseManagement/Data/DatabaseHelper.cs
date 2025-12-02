@@ -148,9 +148,10 @@ namespace WareHouseManagement.Data
                     InvoiceCode TEXT NOT NULL UNIQUE,
                     InvoiceDate TEXT NOT NULL,
                     Type TEXT NOT NULL,
+                    CustomerName TEXT NOT NULL DEFAULT '',
                     TotalAmount REAL DEFAULT 0,
                     Profit REAL DEFAULT 0,
-                     IsDebt INTEGER DEFAULT 0   
+                    IsDebt INTEGER DEFAULT 0   
                 );
 
                 CREATE TABLE IF NOT EXISTS InvoiceDetail (
@@ -308,9 +309,9 @@ namespace WareHouseManagement.Data
                     try
                     {
                         string sqlInvoice = @"
-                INSERT INTO Invoice (InvoiceCode, InvoiceDate, Type, TotalAmount, Profit, IsDebt)
-                VALUES (@InvoiceCode, @InvoiceDate, @Type, @TotalAmount, @Profit, @IsDebt);
-                SELECT last_insert_rowid();";
+INSERT INTO Invoice (InvoiceCode, InvoiceDate, Type, CustomerName, TotalAmount, Profit, IsDebt)
+VALUES (@InvoiceCode, @InvoiceDate, @Type, @CustomerName, @TotalAmount, @Profit, @IsDebt);
+SELECT last_insert_rowid();";
 
                         int invoiceId = conn.ExecuteScalar<int>(sqlInvoice, invoice, tran);
 

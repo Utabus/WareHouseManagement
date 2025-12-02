@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
+               xmlns:hc="https://handyorg.github.io/handycontrol"
               xmlns:vm="clr-namespace:WareHouseManagement.ViewModels.BanHang"
              d:DataContext="{d:DesignInstance Type=vm:BanHangViewModel, IsDesignTimeCreatable=True}">
 
@@ -15,9 +16,17 @@
         </Grid.RowDefinitions>
 
         <!-- Tiêu đề -->
-        <TextBlock Text="Quản lý Xuất hàng / Bán hàng" 
-                   FontSize="22" FontWeight="Bold" 
-                   Foreground="#2C3E50" Margin="0,0,0,10"/>
+
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBlock Text="Quản lý Xuất hàng / Bán hàng" 
+            FontSize="22" FontWeight="Bold" 
+            Foreground="#2C3E50" Margin="0,0,0,10"/>
+            <TextBlock Text="Tìm kiếm:" VerticalAlignment="Center" Margin="30,0,5,0"/>
+            <TextBox Width="200"
+             Text="{Binding TuKhoaTimKiem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+             hc:InfoElement.Placeholder="Nhập tên hoặc mã..."
+             />
+        </StackPanel>
 
         <!-- Danh sách sản phẩm tồn -->
         <DataGrid Grid.Row="1" ItemsSource="{Binding DanhSachSanPham}" 
@@ -75,21 +84,24 @@
                                Foreground="#27AE60" FontSize="16" FontWeight="Bold" Margin="5,0"/>-->
                 </StackPanel>
 
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,0,0">
-                        <TextBlock Text="Trạng thái thanh toán: " VerticalAlignment="Center" Margin="0,0,5,0"/>
-                        <ComboBox Width="150"
+                <StackPanel Orientation="Horizontal" Margin="0,10,0,0" HorizontalAlignment="Right">
+                    <TextBlock Text="Tên khách: " VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <TextBox Width="180"
+             Text="{Binding CustomerName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+             Margin="0,0,20,0"/>
+
+                    <TextBlock Text="Trạng thái thanh toán:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <ComboBox Width="150"
               SelectedValue="{Binding IsDebt, Mode=TwoWay}"
               SelectedValuePath="Tag">
-                            <ComboBoxItem Content="Đã thanh toán" Tag="False"/>
-                            <ComboBoxItem Content="Công nợ" Tag="True"/>
-                        </ComboBox>
-                    </StackPanel>
+                        <ComboBoxItem Content="Đã thanh toán" Tag="False"/>
+                        <ComboBoxItem Content="Công nợ" Tag="True"/>
+                    </ComboBox>
 
-
-                    <Button Content="Lưu s In hóa đơn" Command="{Binding LuuHoaDonCommand}" Width="160" Margin="5,0"/>
+                    <Button Content="Lưu, In hóa đơn" Command="{Binding LuuHoaDonCommand}" Width="160" Margin="5,0"/>
                     <Button Content="Làm mới" Command="{Binding TaiLaiCommand}" Width="100" Margin="5,0"/>
                 </StackPanel>
+
             </StackPanel>
         </GroupBox>
     </Grid>

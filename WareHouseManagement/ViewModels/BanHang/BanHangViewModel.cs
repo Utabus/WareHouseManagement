@@ -31,6 +31,12 @@ namespace WareHouseManagement.ViewModels.BanHang
             private set => SetProperty(ref loiNhuan, value);
         }
 
+        private string customerName;
+        public string CustomerName
+        {
+            get => customerName;
+            set => SetProperty(ref customerName, value);
+        }
 
         // Hàm cập nhật lại tổng tiền & lợi nhuận
         private void CapNhatTongTienLoiNhuan()
@@ -45,6 +51,16 @@ namespace WareHouseManagement.ViewModels.BanHang
             set => SetProperty(ref isDebt, value);
         }
 
+        private string tuKhoaTimKiem;
+        public string TuKhoaTimKiem
+        {
+            get => tuKhoaTimKiem;
+            set
+            {
+                if (SetProperty(ref tuKhoaTimKiem, value))
+                    LocSanPham();
+            }
+        }
 
         public ICommand ThemVaoGioCommand { get; }
         public ICommand XoaKhoiGioCommand { get; }
@@ -63,6 +79,25 @@ namespace WareHouseManagement.ViewModels.BanHang
             LuuHoaDonCommand = new RelayCommand<object>(null, LuuHoaDon);
 
             TaiLaiCommand = new RelayCommand<object>(null, TaiLai);
+        }
+        private void LocSanPham()
+        {
+            if (string.IsNullOrWhiteSpace(TuKhoaTimKiem))
+            {
+                DanhSachSanPham = new ObservableCollection<Product>(_db.GetProducts().Where(p => p.Quantity > 0));
+            }
+            else
+            {
+                string keyword = TuKhoaTimKiem.ToLower();
+                DanhSachSanPham = new ObservableCollection<Product>(
+                    _db.GetProducts()
+                    .Where(p => p.Quantity > 0 &&
+                                (p.Series.ToLower().Contains(keyword) ||
+                                 p.ProductName.ToLower().Contains(keyword)))
+                );
+            }
+
+            OnPropertyChanged(nameof(DanhSachSanPham));
         }
 
         private void GioHang_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -136,6 +171,12 @@ namespace WareHouseManagement.ViewModels.BanHang
                 MessageBox.Show("Chưa có sản phẩm nào trong hóa đơn.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
+            if (string.IsNullOrWhiteSpace(this.CustomerName))
+            {
+                MessageBox.Show("Bạn chưa nhập tên khách hàng.", "Thông báo",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
             try
             {
@@ -144,6 +185,7 @@ namespace WareHouseManagement.ViewModels.BanHang
                     InvoiceCode = "HDX" + DateTime.Now.ToString("yyyyMMddHHmmss"),
                     InvoiceDate = DateTime.Now,
                     Type = "Export",
+                    CustomerName = this.CustomerName,
                     TotalAmount = TongTien,
                     Profit = LoiNhuan,
                     IsDebt = this.IsDebt // bind trực tiếp từ ComboBox

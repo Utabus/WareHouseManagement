@@ -105,6 +105,17 @@ namespace WareHouseManagement.ViewModels
         private void Search()
         {
             var list = _db.GetInvoicesByDate(FromDate, ToDate);
+
+            if (!string.IsNullOrWhiteSpace(Keyword))
+            {
+                string kw = Keyword.Trim().ToLower();
+
+                list = list.Where(x =>
+                      (!string.IsNullOrEmpty(x.CustomerName) && x.CustomerName.ToLower().Contains(kw))
+                   || (!string.IsNullOrEmpty(x.InvoiceCode) && x.InvoiceCode.ToLower().Contains(kw))
+                ).ToList();
+            }
+
             Invoices = new ObservableCollection<Invoice>(list);
 
             OnPropertyChanged(nameof(TongCongNo));
