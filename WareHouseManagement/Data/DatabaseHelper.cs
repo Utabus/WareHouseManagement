@@ -509,6 +509,33 @@ LEFT JOIN Product ON InvoiceDetail.ProductId = Product.Id;
                 to = to.ToString("yyyy-MM-dd")
             });
         }
+        public List<InvoiceDetailItem> GetInvoiceItems(int invoiceId)
+        {
+            using (var conn = CreateConnection())
+            {
+                string sql = @"
+            SELECT 
+                d.Id,
+                d.InvoiceId,
+                d.ProductId,
+                p.ProductName,
+                p.CostPrice,
+                p.SellPrice,
+                p.Color,
+                p.Capacity,
+                d.Quantity,
+                d.UnitPrice,
+                d.Total
+            FROM InvoiceDetail d
+            INNER JOIN Product p ON p.Id = d.ProductId
+            WHERE d.InvoiceId = @InvoiceId
+            ORDER BY d.Id DESC;
+        ";
+
+                return conn.Query<InvoiceDetailItem>(sql, new { InvoiceId = invoiceId }).ToList();
+            }
+        }
+
 
         public void ExportProductsToExcel(string filePath)
         {

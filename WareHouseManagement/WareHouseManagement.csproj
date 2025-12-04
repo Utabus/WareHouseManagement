@@ -140,11 +140,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Models\InvoiceDetailGet.cs" />
+    <Compile Include="Models\InvoiceDetailItem.cs" />
     <Compile Include="Models\InvoiceProductInfo.cs" />
     <Compile Include="ViewModels\BanHang\BanHangViewModel.cs" />
     <Compile Include="ViewModels\BaseViewModel.cs" />
     <Compile Include="ViewModels\DashboardViewModel.cs" />
     <Compile Include="ViewModels\HoaDonViewModel.cs" />
+    <Compile Include="ViewModels\InvoiceDetailViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\ProductEditViewModel.cs" />
     <Compile Include="ViewModels\ProductListViewModel.cs" />
@@ -160,6 +163,9 @@
     </Compile>
     <Compile Include="Views\HoaDonUC.xaml.cs">
       <DependentUpon>HoaDonUC.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\InvoiceDetailWindow.xaml.cs">
+      <DependentUpon>InvoiceDetailWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ProductEditView.xaml.cs">
       <DependentUpon>ProductEditView.xaml</DependentUpon>
@@ -204,6 +210,10 @@
     <Page Include="Views\HoaDonUC.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\InvoiceDetailWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\ProductEditView.xaml">
       <Generator>MSBuild:Compile</Generator>

@@ -51,7 +51,10 @@
         </StackPanel>
 
         <!-- Bảng danh sách hóa đơn -->
-        <DataGrid ItemsSource="{Binding Invoices}" Grid.Row="3" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" SelectionMode="Single">
+        <DataGrid ItemsSource="{Binding Invoices}"
+                  SelectedItem="{Binding SelectedInvoice}"
+          MouseDoubleClick="DataGrid_MouseDoubleClick"
+                  Grid.Row="3" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" SelectionMode="Single">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="*"/>
                 <DataGridTextColumn Header="Tên khách hàng" Binding="{Binding CustomerName}" Width="*"/>

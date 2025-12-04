@@ -1,4 +1,5 @@
 ﻿using System.Windows.Controls;
+using System.Windows.Input;
 using WareHouseManagement.ViewModels;
 
 namespace WareHouseManagement.Views
@@ -13,5 +14,15 @@ namespace WareHouseManagement.Views
             InitializeComponent();
             DataContext = new HoaDonViewModel();
         }
+
+
+        private void DataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (DataContext is HoaDonViewModel vm && vm.SelectedInvoice != null)
+            {
+                vm.OpenInvoiceDetailCommand.Execute(null);
+            }
+        }
+
     }
 }

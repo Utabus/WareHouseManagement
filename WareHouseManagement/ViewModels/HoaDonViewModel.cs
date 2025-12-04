@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows.Input;
 using WareHouseManagement.Data;
 using WareHouseManagement.Models;
+using WareHouseManagement.Views;
 
 namespace WareHouseManagement.ViewModels
 {
@@ -63,7 +64,18 @@ namespace WareHouseManagement.ViewModels
         {
             get => Invoices?.Where(x => x.IsDebt).Sum(x => x.TotalAmount) ?? 0;
         }
+        private Invoice _selectedInvoice;
+        public Invoice SelectedInvoice
+        {
+            get => _selectedInvoice;
+            set
+            {
+                _selectedInvoice = value;
+                OnPropertyChanged(nameof(SelectedInvoice));
+            }
+        }
 
+        public ICommand OpenInvoiceDetailCommand { get; }
         // Command
         public ICommand LoadRevenueStatisticsCommand { get; }
         public ICommand RefreshCommand { get; }
@@ -74,6 +86,10 @@ namespace WareHouseManagement.ViewModels
             LoadRevenueStatisticsCommand = new RelayCommand(_ => Search());
             RefreshCommand = new RelayCommand(_ => Refresh());
             CapNhatCongNoCommand = new RelayCommand<Invoice>(invoice => invoice != null, UpdateDebt);
+
+
+            OpenInvoiceDetailCommand = new RelayCommand(_ => OpenDetailWindow(), _ => SelectedInvoice != null);
+
             Search();
         }
 
@@ -83,6 +99,15 @@ namespace WareHouseManagement.ViewModels
         //    Invoices = new ObservableCollection<Invoice>(list);
         //}
 
+        private void OpenDetailWindow()
+        {
+            var win = new InvoiceDetailWindow
+            {
+                DataContext = new InvoiceDetailViewModel(SelectedInvoice)
+            };
+
+            win.ShowDialog();
+        }
         private void UpdateDebt(Invoice invoice)
         {
             if (invoice == null) return;
