@@ -82,17 +82,61 @@
                     </DataGridTemplateColumn.CellTemplate>
 
                 </DataGridTemplateColumn>
+                
+                
                 <DataGridTemplateColumn Header="Thao tác" Width="*">
+                    <DataGridTemplateColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="Thao tác"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.HeaderTemplate>
+
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Button Content="Cập nhật " Width="Auto" Height="Auto"
-                    Command="{Binding DataContext.CapNhatCongNoCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                    CommandParameter="{Binding}"/>
+                            <Button Content="Cập nhật"
+                Width="Auto"
+                Command="{Binding DataContext.CapNhatCongNoCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                CommandParameter="{Binding}">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsDebt}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
+
                 </DataGridTemplateColumn>
 
+
+
             </DataGrid.Columns>
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="Foreground" Value="Black"/>
+
+                    <Style.Triggers>
+
+                        <!-- Tô nền đỏ nhẹ khi IsDebt = true -->
+                        <DataTrigger Binding="{Binding IsDebt}" Value="True">
+                            <Setter Property="Background" Value="#FFFFD6D6"/>
+                        </DataTrigger>
+
+                        <!-- Khi chọn dòng: chữ luôn màu đen -->
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Foreground" Value="Black"/>
+                        </Trigger>
+
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
+
+
         </DataGrid>
 
     </Grid>

@@ -50,7 +50,7 @@
                 <Border Background="#3F51B5" CornerRadius="10" Padding="10" Margin="5">
                     <StackPanel>
                         <TextBlock Text="Doanh thu" Foreground="White" FontWeight="Bold"/>
-                        <TextBlock Text="{Binding Summary.TotalExportValue, StringFormat={}{0:N0} đ}" 
+                        <TextBlock Text="{Binding TotalExportValue, StringFormat={}{0:N0} đ}" 
                                    Foreground="White" FontSize="20" FontWeight="Bold"/>
                     </StackPanel>
                 </Border>
@@ -58,7 +58,7 @@
                 <Border Background="#E91E63" CornerRadius="10" Padding="10" Margin="5">
                     <StackPanel>
                         <TextBlock Text="Lợi nhuận" Foreground="White" FontWeight="Bold"/>
-                        <TextBlock Text="{Binding Summary.TotalProfit, StringFormat={}{0:N0} đ}" 
+                        <TextBlock Text="{Binding TotalProfit, StringFormat={}{0:N0} đ}" 
                                    Foreground="White" FontSize="20" FontWeight="Bold"/>
                     </StackPanel>
                 </Border>

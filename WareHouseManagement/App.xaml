@@ -13,6 +13,18 @@
 
 
             </ResourceDictionary.MergedDictionaries>
+            <Style BasedOn="{StaticResource DataGridCellStyle}" TargetType="DataGridCell">
+                <Style.Triggers>
+                    <MultiDataTrigger>
+                        <MultiDataTrigger.Conditions>
+                            <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="true" />
+                            <Condition Binding="{Binding SelectionUnit, RelativeSource={RelativeSource FindAncestor, AncestorType=DataGrid}}" Value="FullRow" />
+                        </MultiDataTrigger.Conditions>
+                        <Setter Property="Foreground" Value="Black" />
+                        <Setter Property="Background" Value="DarkGray" />
+                    </MultiDataTrigger>
+                </Style.Triggers>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

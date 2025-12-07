@@ -98,6 +98,32 @@ namespace WareHouseManagement.ViewModels
             }
         }
 
+
+
+        private float _TotalExportValue;
+        public float TotalExportValue
+        {
+            get { return _TotalExportValue; }
+            set
+            {
+                _TotalExportValue = value;
+                OnPropertyChanged("TotalExportValue");
+            }
+        }
+        private float _TotalProfit;
+        public float TotalProfit
+        {
+            get { return _TotalProfit; }
+            set
+            {
+                _TotalProfit = value;
+                OnPropertyChanged("TotalProfit");
+            }
+        }
+
+
+
+
         //private int _selectedYear;
         //public int SelectedYear
         //{
@@ -158,7 +184,8 @@ namespace WareHouseManagement.ViewModels
             double[] profitValues = allDays
                 .Select(d => (double)(data.FirstOrDefault(x => x.InvoiceDate.Date == d.Date)?.TotalProfit ?? 0))
                 .ToArray();
-
+            TotalExportValue = revenueValues.Sum(x => (float)x);    
+            TotalProfit = profitValues.Sum(x => (float)x);
             RevenueSeries = new SeriesCollection
     {
         new ColumnSeries
